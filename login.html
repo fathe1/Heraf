@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="images/IMG_20231105_202217_434-removebg.png">
+  <link rel="stylesheet" href="CSSFiles/Normalize.css" />
+  <link rel="stylesheet" href="CSSFiles/all.min.css" />
+  <link rel="stylesheet" href="CSSFiles/login.css">
+  <title>Heraf Login</title>
+</head>
+
+<body>
+  <div class="container">
+    <!-- left -->
+    <div class="sign-in">
+      <div class="logo">
+        <img src="images/IMG_20231105_202217_434-removebg.png" alt="logo">
+      </div>
+      <div class="text center">
+        <h1>Login To Your Account</h1>
+        <div id="message"></div>
+      </div>
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required title="Enter your Email Example: Heraf123@gmail.com"><br>
+        <input type="password" id="pass" placeholder="Password" required title="Enter your password"><br>
+        <input type="submit" id="sub" value="Sign In">
+        <i class="fa-solid fa-eye" style="cursor:pointer;"></i>
+      </form>
+    </div>
+
+    <!-- right -->
+    <div class="sign-up">
+      <div class="lay"></div>
+      <div class="text center">
+        <h1>New Here?</h1>
+        <p>Sign up and discover a great amount of new opportunities</p>
+        <button onclick="location.href='newaccount.html'">Sign Up</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("pass").value;
+
+      fetch('login.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          'email': email,
+          'password': pass
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = 'profile.php';
+        } else {
+          document.getElementById("message").innerHTML = "<p style='color: red;'>Invalid email or password</p>";
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+
+    document.querySelector(".fa-eye").addEventListener("click", function() {
+      const pass = document.getElementById("pass");
+      if (pass.type === "password") {
+        pass.type = "text";
+        setTimeout(() => { pass.type = "password"; }, 3000);
+      } else {
+        pass.type = "password";
+      }
+    });
+  </script>
+</body>
+
+</html>

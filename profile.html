@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="images/IMG_20231105_202217_434-removebg.png">
+  <link rel="stylesheet" href="CSSFiles/Normalize.css">
+  <link rel="stylesheet" href="CSSFiles/all.min.css">
+  <link rel="stylesheet" href="CSSFiles/prof.css">
+  <title>Heraf Profile</title>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="images/IMG_20231105_202217_434-removebg.png" alt="Logo">
+      </div>
+      <i class="fas fa-bars toggle-menu"></i>
+      <div class="links">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#sur">Services</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+        <a href="login.html" id="loginLink">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec1">
+    <div class="container">
+      <div class="left">
+        <p>Hi there</p>
+        <h3 id="fullName"></h3>
+        <p id="elherfa"></p>
+        <button class="btn-skill">Add skill</button>
+        <form class="Newskill" style="display: none;">
+          <label for="Nskill">Write your skill:</label>
+          <input type="text" id="Nskill" name="addskill">
+          <input type="submit" value="Add">
+        </form>
+        <p id="aboutMe"></p>
+        <p><span>My phone:</span> <span id="phone"></span></p>
+        <div id="rating"></div>
+      </div>
+      <div class="right">
+        <div class="photo">
+          <img id="profilePhoto" src="" alt="">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="projects">
+    <div class="container">
+      <div id="projectCards"></div>
+      <div class="lay addlay"></div>
+      <form class="addForm" action="" method="post" enctype="multipart/form-data">
+        <label for="photoProj">Image of new project:</label>
+        <input type="file" name="photoProj" accept="image/*" required>
+        <label for="projName">Name of your new project:</label>
+        <input type="text" name="projName" required>
+        <label for="info">Information of your new project:</label>
+        <textarea id="info" name="infoproj" rows="4" cols="50" required></textarea>
+        <input type="submit" class="sub" value="Add my new project">
+      </form>
+      <div class="add">
+        <p>Add new project</p>
+        <i class="fa-solid fa-plus"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="comments">
+    <div class="container contComnt" id="commentsSection"></div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="content">
+        <div class="card">
+          <h3>Connect with us</h3>
+          <div class="ourMail">
+            <i class="fa-solid fa-envelope"></i>
+            <span>Heraf@gmail.com</span>
+          </div>
+        </div>
+        <div id="sur" class="card">
+          <h3>Our service</h3>
+          <p><span style="font-weight: bold;">Heraf:</span> is a platform that provides a space for artisans of all shapes and professions to offer their services</p>
+        </div>
+        <div id="about" class="card">
+          <h3>About US</h3>
+          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
+        </div>
+      </div>
+      <hr>
+      <h2>ERROR 404 TEAM</h2>
+      <p style="font-size: 0.9em;"><i class="fa-solid fa-copyright"></i> 2023</p>
+    </div>
+  </footer>
+
+  <script>
+    // Function to fetch profile data
+    async function fetchProfile() {
+      try {
+        let response = await fetch('fetch.php?action=getProfile');
+        let data = await response.json();
+        document.getElementById('fullName').innerText = `${data.first_name} ${data.last_name}`;
+        document.getElementById('elherfa').innerHTML = data.elherfa ? `<ul>${data.skills.map(skill => `<li>${skill}</li>`).join('')}</ul>` : '';
+        document.getElementById('aboutMe').innerText = data.about;
+        document.getElementById('phone').innerText = data.phone;
+        document.getElementById('profilePhoto').src = `images/${data.photo}`;
+        document.getElementById('rating').innerHTML = '<i class="fa-solid fa-star"></i>'.repeat(data.rating);
+        renderProjects(data.projects);
+        renderComments(data.reviews);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
+    }
+
+    function renderProjects(projects) {
+      const projectCards = document.getElementById('projectCards');
+      projectCards.innerHTML = projects.map(project => `
+        <div class="card">
+          <div class="left">
+            <div class="img-proj">
+              <img src="images/${project.photo}" alt="">
+            </div>
+          </div>
+          <div class="right">
+            <h4>${project.project_name}</h4>
+            <p>${project.details}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderComments(reviews) {
+      const commentsSection = document.getElementById('commentsSection');
+      commentsSection.innerHTML = reviews.map(review => `
+        <div class="card fornum">
+          <div class="person">
+            <img src="images/${review.client_photo}" alt="">
+            <div class="name">${review.client_name}</div>
+          </div>
+          <div class="cmnt">
+            <div class="rating">
+              ${'<i class="fa-solid fa-star star"></i>'.repeat(review.rating)}
+            </div>
+            <p class="mycmnt">${review.text}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Event listeners
+    document.querySelector('.btn-skill').addEventListener('click', () => {
+      document.querySelector('.Newskill').style.display = 'block';
+    });
+
+    document.querySelector('.Newskill').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const skill = document.querySelector('#Nskill').value;
+      try {
+        await fetch('fetch.php?action=addSkill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ skill })
+        });
+        fetchProfile();
+      } catch (error) {
+        console.error('Error adding skill:', error);
+      }
+    });
+
+    document.querySelector('.addForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      try {
+        await fetch('fetch.php?action=addProject', {
+          method: 'POST',
+          body: formData
+        });
+        fetchProfile();
+      } catch (error) {
+        console.error('Error adding project:', error);
+      }
+    });
+
+    // Initial fetch
+    fetchProfile();
+  </script>
+</body>
+</html>
